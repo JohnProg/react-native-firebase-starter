@@ -201,11 +201,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 25,
     marginBottom: 10,
-    color: '#000',
+    color: '#fff',
     backgroundColor: 'transparent',
   },
   errMsg: {
-    color: '#000',
+    color: '#fff',
     fontSize: 12,
     marginBottom: 10,
     width: 280,

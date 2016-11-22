@@ -158,14 +158,14 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 25,
     marginBottom: 10,
-    color: '#000',
+    color: '#fff',
     backgroundColor: 'transparent',
   },
   errMsg: {
     width: 280,
     textAlign: 'center',
     alignSelf: 'center',
-    color: '#000',
+    color: '#fff',
     marginBottom: 10,
     fontSize: 14,
     backgroundColor: 'transparent',
@@ -195,7 +195,7 @@ const styles = StyleSheet.create({
   },
   forgotBtn: {
     fontSize: 12,
-    color: '#000',
+    color: '#fff',
   },
   submitBtnContainer: {
     width: 120,
