@@ -74,10 +74,10 @@ const styles = StyleSheet.create({
   title: {
     backgroundColor: 'transparent',
     marginTop: 20,
-    fontWeight: '800',
-    fontSize: 20,
+    fontWeight: '300',
+    fontSize: 80,
     marginBottom: 20,
-    color: '#000',
+    color: '#fff',
   },
   btnBox: {
     height: 40,
