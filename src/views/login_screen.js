@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   logoContainer: {
   },
   logoImage : {
-    height: 240,
-    width: 240,
+    height: 220,
+    width: 220,
   },
 })
