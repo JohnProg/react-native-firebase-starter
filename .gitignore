@@ -44,6 +44,7 @@ yarn-error.log
 *.keystore
 
 android/gradle.properties
-ios/MyApp.xcodeproj/project.pbxproj
+ios/Fishii.xcodeproj/project.pbxproj
 
+src/firebase.js
 src/firebase.js

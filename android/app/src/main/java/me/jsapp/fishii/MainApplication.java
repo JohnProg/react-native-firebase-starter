@@ -1,4 +1,4 @@
-package me.jsapp.myapp;
+package me.jsapp.fishii;
 
 import android.app.Application;
 import android.util.Log;

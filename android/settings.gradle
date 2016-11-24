@@ -1,4 +1,4 @@
-rootProject.name = 'MyApp'
+rootProject.name = 'Fishii'
 
 include ':app'
 include ':react-native-fs'

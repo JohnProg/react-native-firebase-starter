@@ -10,7 +10,7 @@
 
   [1]: https://itunes.apple.com/us/app/jsapp-my-app/id1165501349?mt=8
   [2]: ./graphics/app-store-badge.png
-  [3]: https://play.google.com/store/apps/details?id=me.jsapp.myapp
+  [3]: https://play.google.com/store/apps/details?id=me.jsapp.fishii
   [4]: ./graphics/google-play-badge.png  
 
 ## Built With
