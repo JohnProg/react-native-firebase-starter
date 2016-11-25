@@ -48,3 +48,5 @@ ios/Fishii.xcodeproj/project.pbxproj
 
 src/firebase.js
 src/firebase.js
+
+ios/Fishii/Info.plist

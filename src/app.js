@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import codePush from "react-native-code-push";
+import codePush from "react-native-code-push"
 
 import { Router, Scene } from 'react-native-mobx'
 import { Provider } from 'mobx-react/native'
