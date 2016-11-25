@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
     height: 40,
     paddingLeft: 15,
     paddingRight: 15,
-    color: '#000'
+    color: '#fff'
   },
   btnContainers: {
     marginTop: 15,

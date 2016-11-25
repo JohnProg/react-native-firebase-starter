@@ -179,7 +179,7 @@ const styles = StyleSheet.create({
     height: 40,
     paddingLeft: 15,
     paddingRight: 15,
-    color: '#ffffff'
+    color: '#fff'
   },
   btnContainers: {
     marginTop: 15,

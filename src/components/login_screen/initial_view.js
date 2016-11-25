@@ -28,6 +28,7 @@ export default class InitialView extends Component {
       delay={this.props.animDelay}
       onAnimationEnd={this._handleAnimEnd.bind(this)}>
         <Text style={styles.title}>Fishii</Text>
+        <Text style={styles.version}>v1.0.1</Text>
         <View style={styles.btnBox}>
           <TouchableOpacity onPress={this._handleSignInPress.bind(this)}>
             <View style={styles.btnContainer}>
@@ -76,6 +77,11 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontWeight: '300',
     fontSize: 80,
+    color: '#fff',
+  },
+  version: {
+    backgroundColor: 'transparent',
+    fontSize: 6,
     marginBottom: 20,
     color: '#fff',
   },
