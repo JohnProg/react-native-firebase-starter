@@ -16,6 +16,7 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import EvilIcon from 'react-native-vector-icons/EvilIcons'
 import { observer,inject } from 'mobx-react/native'
 import { Actions } from 'react-native-mobx'
+import { GiftedChat } from 'react-native-gifted-chat'
 
 
 const screenWidth = Dimensions.get('window').width
@@ -25,43 +26,57 @@ export default class ChatScreen extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      errMsg: null,
+      messages: [],
     }
+  }
+
+  componentWillMount() {
+    this.setState({
+      messages: [
+        {
+          _id: 2,
+          text: this.props.postProps.postContent,
+          createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
+          user: {
+            _id: 2,
+            name: this.props.postProps.posterName,
+            //avatar: 'https://facebook.github.io/react/img/logo_og.png',
+          },
+        },
+        {
+          _id: 1,
+          text: this.props.postProps.postTitle,
+          createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
+          user: {
+            _id: 2,
+            name: this.props.postProps.posterName,
+            //avatar: 'https://facebook.github.io/react/img/logo_og.png',
+          },
+          image: this.props.postProps.imagePath,
+        },
+      ],
+    })
+  }
+
+  _onSend = (messages = []) => {
+    this.setState((previousState) => {
+      return {
+        messages: GiftedChat.append(previousState.messages, messages),
+      }
+    })
   }
 
   render() {
     const height = screenWidth*this.props.postProps.imageHeight/this.props.postProps.imageWidth
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.title}>
-            {this.props.postProps.postTitle}
-          </Text>
-          <Image
-            source={{ uri:this.props.postProps.imagePath }}
-            resizeMode='contain'
-            style={{
-              height: height,
-              width: screenWidth,
-              alignSelf: 'center',
-              marginBottom: 10,
-            }}
-          />
-          <View style={styles.postInfo}>
-            <Icon name='md-arrow-dropright' size={15} color='rgba(0,0,0,.5)' style={styles.itemIcon}/>
-            <Text style={styles.username}>
-              {this.props.postProps.posterName}
-            </Text>
-            <Text style={styles.time}>
-              {this.props.postProps.postTime}
-            </Text>
-          </View>
-          <Text style={styles.content}>
-            {this.props.postProps.postContent}
-          </Text>
-        </View>
-      </ScrollView>
-    )
+            <GiftedChat
+              messages={this.state.messages}
+              onSend={this._onSend}
+              user={{
+                _id: 1,
+              }}
+            />
+          )
   }
 }
 
