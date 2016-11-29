@@ -25,7 +25,6 @@ const screenWidth = Dimensions.get('window').width
 @inject("appStore") @observer
 export default class ChatScreen extends Component {
   constructor(props) {
-    console.log(props)
     super(props)
     this.state = {
       messages: [],
@@ -33,9 +32,6 @@ export default class ChatScreen extends Component {
   }
 
   componentWillMount() {
-  }
-
-  componentDidMount() {
     this._loadMessages((message) => {
       this.setState((previousState) => {
         return {
@@ -45,8 +41,12 @@ export default class ChatScreen extends Component {
     })
   }
 
+  componentDidMount() {
+
+  }
+
   componentWillUnmount() {
-    firebaseApp.database().ref('messages').off()
+    firebaseApp.database().ref('messages').child(this.props.postProps.postId).off()
   }
 
   _loadMessages(callback) {
@@ -62,26 +62,19 @@ export default class ChatScreen extends Component {
         },
       });
     };
-    firebaseApp.database().ref('messages').limitToLast(20).on('child_added', onReceive)
+    firebaseApp.database().ref('messages').child(this.props.postProps.postId).limitToLast(20).on('child_added', onReceive)
   }
 
   _onSend = (messages = []) => {
     console.log("messages.length: " + messages.length);
     console.log(messages);
     for (let i = 0; i < messages.length; i++) {
-      firebaseApp.database().ref('messages').push({
+      firebaseApp.database().ref('messages').child(this.props.postProps.postId).push({
         text: messages[i].text,
         user: messages[i].user,
         createdAt: firebase.database.ServerValue.TIMESTAMP,
       })
     }
-    /*
-    this.setState((previousState) => {
-      return {
-        messages: GiftedChat.append(previousState.messages, messages),
-      }
-    })
-    */
   }
 
   render() {
