@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 import { getColor } from '../components/config'
 import { firebaseApp } from '../firebase'
+import firebase from 'firebase'
 import Icon from 'react-native-vector-icons/Ionicons'
 import EvilIcon from 'react-native-vector-icons/EvilIcons'
 import { observer,inject } from 'mobx-react/native'
@@ -24,6 +25,7 @@ const screenWidth = Dimensions.get('window').width
 @inject("appStore") @observer
 export default class ChatScreen extends Component {
   constructor(props) {
+    console.log(props)
     super(props)
     this.state = {
       messages: [],
@@ -31,49 +33,65 @@ export default class ChatScreen extends Component {
   }
 
   componentWillMount() {
-    this.setState({
-      messages: [
-        {
-          _id: 2,
-          text: this.props.postProps.postContent,
-          createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
-          user: {
-            _id: 2,
-            name: this.props.postProps.posterName,
-            //avatar: 'https://facebook.github.io/react/img/logo_og.png',
-          },
-        },
-        {
-          _id: 1,
-          text: this.props.postProps.postTitle,
-          createdAt: new Date(Date.UTC(2016, 7, 30, 17, 20, 0)),
-          user: {
-            _id: 2,
-            name: this.props.postProps.posterName,
-            //avatar: 'https://facebook.github.io/react/img/logo_og.png',
-          },
-          image: this.props.postProps.imagePath,
-        },
-      ],
+  }
+
+  componentDidMount() {
+    this._loadMessages((message) => {
+      this.setState((previousState) => {
+        return {
+          messages: GiftedChat.append(previousState.messages, message),
+        }
+      })
     })
   }
 
+  componentWillUnmount() {
+    firebaseApp.database().ref('messages').off()
+  }
+
+  _loadMessages(callback) {
+    const onReceive = (data) => {
+      const message = data.val()
+      callback({
+        _id: data.key,
+        text: message.text,
+        createdAt: new Date(message.createdAt),
+        user: {
+          _id: message.user._id,
+          name: message.user.name,
+        },
+      });
+    };
+    firebaseApp.database().ref('messages').limitToLast(20).on('child_added', onReceive)
+  }
+
   _onSend = (messages = []) => {
+    console.log("messages.length: " + messages.length);
+    console.log(messages);
+    for (let i = 0; i < messages.length; i++) {
+      firebaseApp.database().ref('messages').push({
+        text: messages[i].text,
+        user: messages[i].user,
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+      })
+    }
+    /*
     this.setState((previousState) => {
       return {
         messages: GiftedChat.append(previousState.messages, messages),
       }
     })
+    */
   }
 
   render() {
-    const height = screenWidth*this.props.postProps.imageHeight/this.props.postProps.imageWidth
     return (
             <GiftedChat
               messages={this.state.messages}
               onSend={this._onSend}
               user={{
-                _id: 1,
+                _id: this.props.appStore.user.uid,
+                name: this.props.postProps.posterName,
               }}
             />
           )
@@ -81,44 +99,5 @@ export default class ChatScreen extends Component {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-    marginTop: 56,
-  },
-  card: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#e2e2e2',
-    borderRadius: 2,
-    backgroundColor: '#eee',
-    padding: 10,
-    margin: 5,
-    //justifyContent: 'center',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '800',
-    marginBottom: 5,
-  },
-  postInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  itemIcon: {
-    marginRight: 10
-  },
-  username: {
-    color: getColor(),
-    fontSize: 16,
-    marginRight: 10,
-  },
-  time: {
-    fontSize: 15,
-  },
-  content: {
-    marginTop: 5,
-    fontSize: 14
-  },
+
 })
