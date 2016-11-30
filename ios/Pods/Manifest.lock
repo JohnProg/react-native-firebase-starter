@@ -1,0 +1,12 @@
+PODS:
+  - OneSignal (1.13.3)
+
+DEPENDENCIES:
+  - OneSignal (~> 1.13.3)
+
+SPEC CHECKSUMS:
+  OneSignal: 434facae3389cb0d4d3fc57b9a6cf66db685205e
+
+PODFILE CHECKSUM: 9c2d4b64d3fa568d5a96fbb654395bdc5a269836
+
+COCOAPODS: 1.2.0.beta.1

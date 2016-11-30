@@ -180,6 +180,27 @@ export default class CreateNew extends Component {
           const imageName = `${newPostKey}.jpg`
           uploadImage(this.state.imagePath, imageName)
           .then(url => {
+            fetch('https://onesignal.com/api/v1/notifications',
+            {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'Authorization': 'Basic OGIzOTFhYzktOGUwNS00OTJjLWE4N2MtNTMwNGQzYTNjYTk1',
+              },
+              body: JSON.stringify(
+              {
+                app_id: "a8f852be-2aa4-4c9d-a1b3-38d630926927",
+                included_segments: ["All"],
+                data: {"postId": newPostKey},
+                headings: {"en": "New fish posted"},
+                contents: {"en": this.props.appStore.user.displayName + " just added a new fresh fish: " + this.state.postTitle}
+              })
+            })
+            .then((responseData) => {
+                console.log("Push POST:" + JSON.stringify(responseData));
+            })
+            .done()
             const postData = {
               username: username,
               timestamp: firebase.database.ServerValue.TIMESTAMP,

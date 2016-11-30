@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import codePush from 'react-native-code-push'
+import OneSignal from 'react-native-onesignal'
 
 import { Router, Scene } from 'react-native-mobx'
 import { Provider } from 'mobx-react/native'
@@ -12,6 +13,10 @@ import ChatScreen from './views/chat_screen'
 import appStore from './store/AppStore'
 
 class App extends Component {
+  componentDidMount() {
+    OneSignal.configure({})
+    //OneSignal.enableInAppAlertNotification(true)
+  }
   render() {
     return (
       <Provider appStore={appStore}>
@@ -50,5 +55,5 @@ class App extends Component {
   }
 }
 
-//export default App
-export default App = codePush({ updateDialog: true, installMode: codePush.InstallMode.IMMEDIATE })(App)
+export default App
+//export default App = codePush({ updateDialog: true, installMode: codePush.InstallMode.IMMEDIATE })(App)

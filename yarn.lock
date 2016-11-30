@@ -4177,6 +4177,10 @@ react-native-mobx@^0.3.1:
     mobx-react "^3.3.0"
     react-native-router-flux "^3.31.2"
 
+react-native-onesignal:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/react-native-onesignal/-/react-native-onesignal-1.2.3.tgz#f5bece58f143ff8423d15aed98b982852145e07f"
+
 react-native-parsed-text@^0.0.15:
   version "0.0.15"
   resolved "https://registry.yarnpkg.com/react-native-parsed-text/-/react-native-parsed-text-0.0.15.tgz#d24ccc2f9c57c131f2ff6a872852d6a9e266eab7"
