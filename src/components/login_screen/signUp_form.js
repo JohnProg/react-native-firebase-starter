@@ -15,6 +15,7 @@ import { getColor } from '../config'
 import * as Animatable from 'react-native-animatable'
 import { Actions } from 'react-native-mobx'
 import { observer,inject } from 'mobx-react/native'
+import OneSignal from 'react-native-onesignal'
 
 
 @inject("appStore") @observer
@@ -160,6 +161,8 @@ export default class SignUpForm extends Component {
               this.props.appStore.username = user.displayName
               this.props.appStore.post_count = post_count
               this.props.appStore.user = user
+              OneSignal.sendTag("username", user.displayName)
+              OneSignal.sendTag("uid", user.uid)
               Actions.home({ type: 'replace' })
             }, function(error) {
               console.log(error);

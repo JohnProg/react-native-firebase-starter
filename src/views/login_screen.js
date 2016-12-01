@@ -19,6 +19,8 @@ import ForgotPassForm from '../components/login_screen/forgotPassword_form'
 import { firebaseApp } from '../firebase'
 import { observer, inject } from 'mobx-react/native'
 import { Actions } from 'react-native-mobx'
+import OneSignal from 'react-native-onesignal'
+
 
 @inject("appStore") @observer
 export default class LoginScreen extends Component {
@@ -49,6 +51,10 @@ export default class LoginScreen extends Component {
         this.setState({ initialScreen: true })
       }
       _unsubscribe()
+    })
+    OneSignal.getTags((receivedTags) => {
+      console.log("EAT FAST!!!!!");
+      console.log(receivedTags);
     })
   }
 

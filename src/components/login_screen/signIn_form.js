@@ -15,6 +15,7 @@ import { firebaseApp } from '../../firebase'
 import * as Animatable from 'react-native-animatable'
 import { Actions } from 'react-native-mobx'
 import { observer,inject } from 'mobx-react/native'
+import OneSignal from 'react-native-onesignal'
 
 
 @inject("appStore") @observer
@@ -120,7 +121,9 @@ export default class SignInForm extends Component {
         })
         this.props.appStore.user = user
         this.props.appStore.username = user.displayName
-        console.log("user displayName: " + user.displayName);
+        console.log("user displayName: " + user.displayName + " - " + user.uid)
+        OneSignal.sendTag("username", user.displayName)
+        OneSignal.sendTag("uid", user.uid)
         Actions.home({ type: 'replace' })
       })
       .catch((error) => {

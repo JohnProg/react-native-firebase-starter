@@ -194,7 +194,8 @@ export default class CreateNew extends Component {
                 included_segments: ["All"],
                 data: {"postId": newPostKey},
                 headings: {"en": "New fish posted"},
-                contents: {"en": this.props.appStore.user.displayName + " just added a new fresh fish: " + this.state.postTitle}
+                contents: {"en": this.props.appStore.user.displayName + " just added a new fresh fish: " + this.state.postTitle},
+                filters: [{"field":"tag","key":"username","relation":"=","value":"Herve"}],
               })
             })
             .then((responseData) => {
