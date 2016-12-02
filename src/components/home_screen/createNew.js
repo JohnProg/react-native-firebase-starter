@@ -63,6 +63,7 @@ export default class CreateNew extends Component {
       postStatus: null,
       postText: '',
       postTitle: '',
+      postPrice: '',
       imagePath: null,
       imageHeight: null,
       imageWidth: null,
@@ -96,7 +97,7 @@ export default class CreateNew extends Component {
       <View style={styles.container}>
         <Spinner visible={this.state.spinnervisible} />
         <KeyboardAwareScrollView ref='scrollContent'>
-          <Text style={styles.title}>{'ADD A NEW POST'}</Text>
+          <Text style={styles.title}>{'ADD A NEW FISH'}</Text>
           { photo }
           <TouchableOpacity style={styles.btnAdd} onPress={this._takePicture}>
             <Icon
@@ -112,10 +113,24 @@ export default class CreateNew extends Component {
             value={this.state.postTitle}
             onChangeText={(text) => this.setState({ postTitle: text })}
             underlineColorAndroid='transparent'
-            placeholder='Enter a Post Title'
+            placeholder='Enter the type of the fish'
             placeholderTextColor='rgba(0,0,0,.6)'
             onSubmitEditing={(event) => {
               this.refs.SecondInput.focus();
+            }}
+            />
+          </View>
+          <View style={styles.titleContainer}>
+            <TextInput
+            ref='SecondInput'
+            style={styles.inputField}
+            value={this.state.postPrice}
+            onChangeText={(text) => this.setState({ postPrice: text })}
+            underlineColorAndroid='transparent'
+            placeholder='Enter the price of the fish with currency'
+            placeholderTextColor='rgba(0,0,0,.6)'
+            onSubmitEditing={(event) => {
+              this.refs.ThirdInput.focus();
             }}
             />
           </View>
@@ -128,11 +143,11 @@ export default class CreateNew extends Component {
           </TouchableOpacity>
           <View style={styles.inputContainer}>
             <TextInput
-            ref='SecondInput'
+            ref='ThirdInput'
             multiline={true}
             style={styles.inputField}
             underlineColorAndroid='transparent'
-            placeholder='Please enter a Post Content'
+            placeholder='Please give a short description where/when/how you catch this fish. Does this price include the delivery or when/where/how to get this fish.'
             value={this.state.postText}
             onChangeText={(text) => this.setState({ postText: text })}
             placeholderTextColor='rgba(0,0,0,.6)'
@@ -172,7 +187,7 @@ export default class CreateNew extends Component {
     })
     if (this.state.imagePath) {
       if (this.state.postTitle.length > 0) {
-        if (this.state.postText.length > 0) {
+        if (this.state.postPrice.length > 0) {
           this.setState({ spinnervisible: true })
           const uid = this.props.appStore.user.uid
           const username = this.props.appStore.user.displayName
@@ -194,8 +209,10 @@ export default class CreateNew extends Component {
                 included_segments: ["All"],
                 data: {"postId": newPostKey},
                 headings: {"en": "New fish posted"},
-                contents: {"en": this.props.appStore.user.displayName + " just added a new fresh fish: " + this.state.postTitle},
-                filters: [{"field":"tag","key":"username","relation":"=","value":"Herve"}],
+                android_sound: "fishing",
+                ios_sound: "fishing.caf",
+                contents: {"en": this.props.appStore.user.displayName + " just added a new fresh fish: " + this.state.postTitle + " for " + this.state.postPrice},
+                //filters: [{"field":"tag","key":"username","relation":"=","value":"Herve"}],
               })
             })
             .then((responseData) => {
@@ -207,6 +224,7 @@ export default class CreateNew extends Component {
               timestamp: firebase.database.ServerValue.TIMESTAMP,
               text: this.state.postText,
               title: this.state.postTitle,
+              price: this.state.postPrice,
               puid: newPostKey,
               image: url,
               imageHeight: this.state.imageHeight,
@@ -217,12 +235,14 @@ export default class CreateNew extends Component {
             updates['/users/' + uid + '/post_count'] = this.props.appStore.post_count
             updates['/posts/' + newPostKey] = postData
             updates['/userposts/' + uid + '/posts/' + newPostKey] = postData
+            updates['/messages_notif/' + newPostKey + '/include_player_ids'] = [this.props.appStore.user.uid]
             firebaseApp.database().ref().update(updates)
             .then(() => {
               this.refs.scrollContent.scrollToPosition(0, 0, true)
               this.setState({
                               postStatus: 'Posted! Thank You.',
                               postTitle: '',
+                              postPrice: '',
                               postText: '',
                               imagePath: null,
                               imageHeight: null,
@@ -244,13 +264,13 @@ export default class CreateNew extends Component {
           })
 
         } else {
-          this.setState({ postStatus: 'Please enter a post content.' })
+          this.setState({ postStatus: 'Please enter a price' })
         }
       } else {
-        this.setState({ postStatus: 'Please enter a post title.' })
+        this.setState({ postStatus: 'Please enter the type of fish' })
       }
     } else {
-      this.setState({ postStatus: 'Please take a picture' })
+      this.setState({ postStatus: 'Please take a photo of the fish' })
     }
   }
 }
@@ -302,7 +322,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingTop: 4,
     paddingBottom: 4,
-    fontSize: 14,
+    fontSize: 13,
   },
   btnAdd: {
     width: 280,
