@@ -161,8 +161,8 @@ export default class CreateNew extends Component {
   _takePicture = () => {
     const cam_options = {
       mediaType: 'photo',
-      maxWidth: 1000,
-      maxHeight: 1000,
+      maxWidth: 600,
+      maxHeight: 600,
       quality: 1,
       noData: true,
     };
@@ -221,7 +221,9 @@ export default class CreateNew extends Component {
             .done()
             const postData = {
               username: username,
-              timestamp: firebase.database.ServerValue.TIMESTAMP,
+              createdAt: firebase.database.ServerValue.TIMESTAMP,
+              updatedAt: firebase.database.ServerValue.TIMESTAMP,
+              new_messages: 0,
               text: this.state.postText,
               title: this.state.postTitle,
               price: this.state.postPrice,
@@ -235,6 +237,7 @@ export default class CreateNew extends Component {
             updates['/users/' + uid + '/post_count'] = this.props.appStore.post_count
             updates['/posts/' + newPostKey] = postData
             updates['/userposts/' + uid + '/posts/' + newPostKey] = postData
+            updates['/userchats/' + uid + '/posts/' + newPostKey] = postData
             updates['/messages_notif/' + newPostKey + '/include_player_ids'] = [this.props.appStore.user.uid]
             firebaseApp.database().ref().update(updates)
             .then(() => {

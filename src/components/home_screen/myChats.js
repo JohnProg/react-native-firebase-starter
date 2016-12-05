@@ -20,12 +20,9 @@ import { Actions } from 'react-native-mobx'
 
 
 @inject("appStore") @observer
-export default class Profile extends Component {
+export default class MyChats extends Component {
   constructor(props) {
     super(props)
-    if (Platform.OS === 'android') {
-      UIManager.setLayoutAnimationEnabledExperimental(true)
-    }
     this.state = {
       isLoading: true,
       isFinished: false,
@@ -37,10 +34,10 @@ export default class Profile extends Component {
 
   componentDidMount() {
     const uid = this.props.appStore.user.uid
-    console.log("--------- MY POSTS --------- " + uid)
-    firebaseApp.database().ref('userposts/'+ uid +'/posts').orderByChild('createdAt').limitToLast(this.state.counter).on('value',
+    console.log("--------- MY CHATS --------- " + uid)
+    firebaseApp.database().ref('userchats/'+ uid +'/posts').orderByChild('updatedAt').limitToLast(this.state.counter).on('value',
     (snapshot) => {
-      console.log("USER POST RETRIEVED");
+      console.log("USER CHATS RETRIEVED");
       //this.props.appStore.myposts = snapshot.val()
       if (snapshot.val()) {
         this.setState({ isEmpty: false })
@@ -56,37 +53,11 @@ export default class Profile extends Component {
   }
 
   componentDidUpdate() {
-    //LayoutAnimation.configureNext(LayoutAnimation.Presets.spring)
   }
 
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.profileInfoContainer}>
-          <View style={styles.profileNameContainer}>
-            <Text style={styles.profileName}>
-              {this.props.appStore.username}
-            </Text>
-          </View>
-          <View style={styles.profileCountsContainer}>
-            <Text style={styles.profileCounts}>
-              {this.props.appStore.post_count}
-            </Text>
-            <Text style={styles.countsName}>
-              POSTS
-            </Text>
-          </View>
-          <View style={styles.profileCountsContainer}>
-            <TouchableOpacity onPress={this._userEdit}>
-              <Icon name='md-settings' size={30} color='rgba(255,255,255,.9)'/>
-            </TouchableOpacity>
-          </View>
-          <View style={styles.profileCountsContainer}>
-            <TouchableOpacity onPress={this._logOut}>
-              <Icon name='md-log-out' size={30} color='rgba(255,255,255,.9)'/>
-            </TouchableOpacity>
-          </View>
-        </View>
         <ListView
           automaticallyAdjustContentInsets={true}
           initialListSize={1}
@@ -102,12 +73,23 @@ export default class Profile extends Component {
 
   _renderRow = (data) => {
     const timeString = moment(data.updatedAt).fromNow()
+    const newMessageCounter = data.new_messages ?
+      <View style={styles.CounterContainer}><Text style={styles.counter}>{ data.new_messages }</Text></View>
+    : null
     return (
       <TouchableOpacity onPress={() => this._openChat(data)}>
         <View style={styles.card}>
-          <Text style={styles.title}>{ data.title }</Text>
-          <Text style={styles.info}>Price: {data.price}</Text>
-          <Text style={styles.info}>Posted: {timeString}</Text>
+          <View style={styles.RawContainer}>
+            <View style={styles.LeftContainer}><Text style={styles.title}>{ data.title }</Text></View>
+            <View style={styles.RightContainer}><Text style={styles.author}>{ data.username }</Text></View>
+          </View>
+          <View style={styles.RawContainer}>
+            <View style={styles.LeftContainer}><Text style={styles.info}>{ data.price }</Text></View>
+            { newMessageCounter }
+          </View>
+          <View style={styles.RawContainer}>
+            <Text style={styles.info}>{timeString}</Text>
+          </View>
         </View>
       </TouchableOpacity>
     )
@@ -117,13 +99,13 @@ export default class Profile extends Component {
     if (!this.state.isEmpty && !this.state.isFinished && !this.state.isLoading) {
       this.setState({ counter: this.state.counter + 10 })
       this.setState({ isLoading: true })
-      firebaseApp.database().ref('userposts/'+ this.props.appStore.user.uid +'/posts').off()
-      firebaseApp.database().ref('userposts/'+ this.props.appStore.user.uid +'/posts').orderByChild('createdAt').limitToLast(this.state.counter+10).on('value',
+      firebaseApp.database().ref('userchats/'+ this.props.appStore.user.uid +'/posts').off()
+      firebaseApp.database().ref('userchats/'+ this.props.appStore.user.uid +'/posts').orderByChild('updatedAt').limitToLast(this.state.counter+10).on('value',
       (snapshot) => {
-        console.log("---- USER POST RETRIEVED ----");
+        console.log("---- USER CHATS RETRIEVED ----");
         if (_.toArray(snapshot.val()).length < this.state.counter) {
           this.setState({ isFinished: true })
-          console.log("---- USER POST FINISHED !!!! ----")
+          console.log("---- USER CHATS FINISHED !!!! ----")
         }
         if (snapshot.val()) {
           console.log(this.state.counter);
@@ -176,36 +158,36 @@ const styles = StyleSheet.create({
   container: {
     flex: 1
   },
-  profileInfoContainer: {
+  RawContainer: {
     flexDirection: 'row',
-    height: 65,
-    margin: 5,
-    borderRadius: 2,
-    backgroundColor: getColor()
+    flex: 1,
+    //borderWidth: 1,
   },
-  profileNameContainer: {
-    flex: 2,
-    justifyContent: 'center',
-    alignItems: 'flex-start',
-  },
-  profileName: {
-    marginLeft: 10,
-    fontSize: 20,
-    color: '#fff',
-  },
-  profileCountsContainer: {
+  LeftContainer: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'flex-start',
+    //borderWidth: 1,
+  },
+  RightContainer: {
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+    //borderWidth: 1,
+  },
+  CounterContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: 5
+    //borderWidth: 1,
+    height: 23,
+    width: 23,
+    borderRadius: 90,
+    marginRight: 25,
+    backgroundColor: getColor(),
   },
-  profileCounts: {
-    fontSize: 30,
-    color: '#fff'
-  },
-  countsName: {
-    fontSize: 12,
-    color: '#ffffff'
+  counter: {
+    fontSize: 16,
+    fontWeight: '200',
+    color: '#FFF',
   },
   waitView: {
     flex: 1,
@@ -225,8 +207,13 @@ const styles = StyleSheet.create({
     padding: 5,
     color: '#444',
   },
+  author: {
+    fontSize: 16,
+    padding: 5,
+  },
   info: {
     padding: 3,
     fontSize: 13,
   },
+
 })

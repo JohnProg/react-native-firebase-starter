@@ -10,6 +10,7 @@ import NavigationTab from '../components/home_screen/navTab'
 import Timeline from '../components/home_screen/timeline'
 import CreateNew from '../components/home_screen/createNew'
 import Profile from '../components/home_screen/profile'
+import MyChats from '../components/home_screen/myChats'
 
 
 export default class HomeScreen extends Component {
@@ -30,6 +31,7 @@ export default class HomeScreen extends Component {
         style={{borderTopWidth:0}}
         renderTabBar={() => <NavigationTab />}>
           <Timeline tabLabel="md-globe"/>
+          <MyChats tabLabel="md-chatbubbles"/>
           <CreateNew tabLabel="md-add"/>
           <Profile tabLabel="md-person"/>
         </ScrollableTabView>

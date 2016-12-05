@@ -16,11 +16,13 @@ class App extends Component {
   componentDidMount() {
     OneSignal.configure({
       onIdsAvailable: function(device) {
-          console.log('UserId = ', device.userId);
-          console.log('PushToken = ', device.pushToken);
+          //console.log('UserId = ', device.userId);
+          //console.log('PushToken = ', device.pushToken);
+          /*
           OneSignal.getTags((receivedTags) => {
             console.log(receivedTags)
           })
+          */
       },
       onNotificationOpened: function(message, data, isActive) {
         console.log('MESSAGE: ', message);

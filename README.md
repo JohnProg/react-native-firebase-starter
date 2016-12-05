@@ -86,12 +86,12 @@ with:
           ".read": true
         },
         "posts": {
-            ".indexOn": "timestamp"
+            ".indexOn": "createdAt"
         },
         "userposts": {
           "$uid": {
             "posts": {
-              ".indexOn": "timestamp"
+              ".indexOn": "createdAt"
             },
           },
         },

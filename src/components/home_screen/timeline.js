@@ -3,19 +3,26 @@ import {
   Text,
   View,
   StyleSheet,
+  TouchableOpacity,
   ActivityIndicator,
   ListView,
   LayoutAnimation,
   Platform,
   UIManager,
+  Dimensions,
+  Image,
 } from 'react-native'
+import Icon from 'react-native-vector-icons/Ionicons'
+import Share from 'react-native-share'
+import { Actions } from 'react-native-mobx'
 import _ from 'lodash'
 import moment from 'moment'
 import { observer,inject } from 'mobx-react/native'
 import { getColor } from '../config'
 import { firebaseApp } from '../../firebase'
-import Post from './post'
 
+
+const screenWidth = Dimensions.get('window').width
 
 @inject("appStore") @observer
 export default class Timeline extends Component {
@@ -35,7 +42,7 @@ export default class Timeline extends Component {
 
   componentDidMount() {
     console.log("--------- TIMELINE --------- " + this.state.counter)
-    firebaseApp.database().ref('posts').orderByChild('timestamp').limitToLast(this.state.counter).on('value',
+    firebaseApp.database().ref('posts').orderByChild('createdAt').limitToLast(this.state.counter).on('value',
     (snapshot) => {
       console.log("---- TIMELINE POST RETRIEVED ---- "+ this.state.counter +" - "+ _.toArray(snapshot.val()).length)
       if (snapshot.val()) {
@@ -70,20 +77,51 @@ export default class Timeline extends Component {
   }
 
   _renderRow = (data) => {
-    const timeString = moment(data.timestamp).fromNow()
     console.log("TIMELINE :::: _renderRow " + data.title)
+    const timeString = moment(data.createdAt).fromNow()
+    const height = screenWidth*data.imageHeight/data.imageWidth
+    const shareOptions = {
+      title: "Fishii",
+      message: data.title,
+      type: "image/jpeg",
+      url: data.image,
+      subject: "Share Fishii"
+    }
     return (
-      <Post key={data.puid}
-        postId={data.puid}
-        postTitle={data.title}
-        posterName={data.username}
-        postTime={timeString}
-        postContent={data.text}
-        imagePath={data.image}
-        imageWidth={data.imageWidth}
-        imageHeight={data.imageHeight}
-      />
+      <View style={styles.card}>
+        <Text style={styles.title}>{ data.title }</Text>
+        <View style={styles.postImage}>
+          <Image
+            source={{ uri:data.image }}
+            resizeMode='contain'
+            style={{
+              height: height,
+              width: screenWidth,
+              alignSelf: 'center',
+            }}
+          />
+        </View>
+        <View style={styles.postInfo}>
+          <Text style={styles.info}>Price: <Text style={styles.bold}>{data.price}</Text></Text>
+          <Text style={styles.info}>- added by <Text style={styles.bold}>{data.username}</Text> - {timeString} -</Text>
+        </View>
+        <View style={styles.postButtons}>
+          <TouchableOpacity style={styles.button} onPress={() => this._openChat(data)}>
+            <Icon name='md-flag' size={30} color='#3367d6'/>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => this._openChat(data)}>
+            <Icon name='md-chatbubbles' size={30} color='#3367d6'/>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={()=>{ Share.open(shareOptions) }}>
+            <Icon name='md-share' size={30} color='#3367d6'/>
+          </TouchableOpacity>
+        </View>
+      </View>
     )
+  }
+
+  _openChat = (postData) => {
+    Actions.chat({ title:postData.title, postProps:postData })
   }
 
   _onEndReached = () => {
@@ -92,8 +130,9 @@ export default class Timeline extends Component {
       this.setState({ counter: this.state.counter + 1 })
       this.setState({ isLoading: true })
       firebaseApp.database().ref('posts').off()
-      firebaseApp.database().ref('posts').orderByChild('timestamp').limitToLast(this.state.counter+1).on('value',
+      firebaseApp.database().ref('posts').orderByChild('createdAt').limitToLast(this.state.counter+1).on('value',
       (snapshot) => {
+        this.setState({ isFinished: false })
         console.log("---- TIMELINE POST ON END RETRIEVED ---- "+ this.state.counter +" - "+ _.toArray(snapshot.val()).length)
         if (_.toArray(snapshot.val()).length < this.state.counter) {
           console.log("---- TIMELINE POST FINISHED ----");
@@ -137,5 +176,42 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 100,
+  },
+  card: {
+    flex: 1,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: '800',
+    padding: 5,
+    color: '#444',
+  },
+  postImage: {
+    backgroundColor: '#eee',
+  },
+  postInfo: {
+    padding: 3,
+    alignItems: 'center',
+  },
+  postButtons: {
+    padding: 5,
+    flexDirection: 'row',
+    flex: 1,
+    alignItems: 'center',
+  },
+  button: {
+    flex: 3,
+    padding: 5,
+    margin: 6,
+    borderRadius: 2,
+    borderWidth: 1,
+    borderColor: '#999',
+    alignItems: 'center',
+  },
+  info: {
+    fontSize: 15,
+  },
+  bold: {
+    fontWeight: 'bold',
   },
 })

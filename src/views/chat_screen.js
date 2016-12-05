@@ -46,10 +46,11 @@ export default class ChatScreen extends Component {
   }
 
   componentWillUnmount() {
-    firebaseApp.database().ref('messages').child(this.props.postProps.postId).off()
+    firebaseApp.database().ref('messages').child(this.props.postProps.puid).off()
   }
 
   _loadMessages(callback) {
+    console.log("----------xXx---------- " + this.props.postProps.puid);
     const onReceive = (data) => {
       const message = data.val()
       callback({
@@ -62,17 +63,19 @@ export default class ChatScreen extends Component {
         },
       });
     };
-    firebaseApp.database().ref('messages').child(this.props.postProps.postId).limitToLast(20).on('child_added', onReceive)
+    firebaseApp.database().ref('messages').child(this.props.postProps.puid).limitToLast(20).on('child_added', onReceive)
+    firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).update( { new_messages:0 } )
   }
 
   _onSend = (messages = []) => {
     for (let i = 0; i < messages.length; i++) {
-      firebaseApp.database().ref('messages').child(this.props.postProps.postId).push({
+      firebaseApp.database().ref('posts').child(this.props.postProps.puid).update( {updatedAt: firebase.database.ServerValue.TIMESTAMP} )
+      firebaseApp.database().ref('messages').child(this.props.postProps.puid).push({
         text: messages[i].text,
         user: messages[i].user,
         createdAt: firebase.database.ServerValue.TIMESTAMP,
       })
-      firebaseApp.database().ref('messages_notif').child(this.props.postProps.postId).once('value')
+      firebaseApp.database().ref('messages_notif').child(this.props.postProps.puid).once('value')
       .then((snapshot) => {
         console.log("player_ids: ");
         console.log(snapshot.val());
@@ -80,6 +83,15 @@ export default class ChatScreen extends Component {
           snapshot.val().include_player_ids.map((playerId) => {
             console.log(playerId);
             if (playerId != this.props.appStore.user.uid) {
+              firebaseApp.database().ref('userchats/'+playerId+'/posts').child(this.props.postProps.puid).transaction(
+                (post) => {
+                  if (post) {
+                    post.new_messages++;
+                    post.updatedAt = firebase.database.ServerValue.TIMESTAMP
+                  }
+                  return post;
+                }
+              )
               console.log("PUSHING NOTIFICATION !!! " + playerId);
               fetch('https://onesignal.com/api/v1/notifications',
               {
@@ -95,17 +107,17 @@ export default class ChatScreen extends Component {
                   included_segments: ["All"],
                   android_sound: "fishing",
                   ios_sound: "fishing.caf",
-                  data: {"postId": this.props.postProps.postId},
+                  data: {"postId": this.props.postProps.puid},
                   headings: {"en": "New message from " + this.props.appStore.user.displayName},
                   contents: {"en": messages[i].text },
                   filters: [{"field":"tag","key":"uid","relation":"=","value":playerId}],
                 })
               })
               .then((responseData) => {
-                  console.log("Push POST:" + JSON.stringify(responseData));
+                console.log("Push POST:" + JSON.stringify(responseData))
               })
               .catch((errorData) => {
-                  console.log("Push ERROR:" + JSON.stringify(errorData));
+                console.log("Push ERROR:" + JSON.stringify(errorData))
               })
               .done()
             }
@@ -113,16 +125,18 @@ export default class ChatScreen extends Component {
           if (snapshot.val().include_player_ids.indexOf(this.props.appStore.user.uid) === -1) {
             const playerIds = snapshot.val().include_player_ids
             playerIds.push(this.props.appStore.user.uid)
-            console.log("ADDDDDING NEW PLAYER to " + this.props.postProps.postId);
+            console.log("ADDDDDING NEW PLAYER to " + this.props.postProps.puid);
             console.log(playerIds)
-            firebaseApp.database().ref('messages_notif').child(this.props.postProps.postId).set({include_player_ids: playerIds})
+            firebaseApp.database().ref('messages_notif').child(this.props.postProps.puid).set({include_player_ids: playerIds})
+            firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).set(this.props.postProps)
           }
           else {
             console.log("This item already exists");
-          }
+          } 
+          this.props.postProps
         }
         else {
-          firebaseApp.database().ref('messages_notif').child(this.props.postProps.postId).set({include_player_ids: [this.props.appStore.user.uid]})
+          firebaseApp.database().ref('messages_notif').child(this.props.postProps.puid).set({include_player_ids: [this.props.appStore.user.uid]})
         }
       })
     }
