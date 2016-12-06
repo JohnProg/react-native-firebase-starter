@@ -44,7 +44,7 @@ export default class LoginScreen extends Component {
         .then((snapshot) => {
           this.props.appStore.post_count = parseInt(snapshot.val().post_count)
         })
-        Actions.home({ type: 'replace' })
+        Actions.home({ type:'replace', postProps:this.props.postProps })
       }
       else {
         console.log(" --- User is Signed Off --- ")
@@ -52,16 +52,14 @@ export default class LoginScreen extends Component {
       }
       _unsubscribe()
     })
-    OneSignal.getTags((receivedTags) => {
-      console.log("EAT FAST!!!!!");
-      console.log(receivedTags);
-    })
   }
 
   componentWillUnmount() {
   }
 
   componentWillMount() {
+    this.props.appStore.current_page = 'login'
+    this.props.appStore.current_puid = ''
   }
 
   componentDidMount() {

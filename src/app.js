@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import codePush from 'react-native-code-push'
 import OneSignal from 'react-native-onesignal'
 
-import { Router, Scene } from 'react-native-mobx'
+import { Router, Scene, Actions } from 'react-native-mobx'
 import { Provider } from 'mobx-react/native'
 
 import LoginScreen from './views/login_screen'
@@ -15,30 +15,32 @@ import appStore from './store/AppStore'
 class App extends Component {
   componentDidMount() {
     OneSignal.configure({
+      /*
       onIdsAvailable: function(device) {
-          //console.log('UserId = ', device.userId);
-          //console.log('PushToken = ', device.pushToken);
-          /*
+          console.log('UserId = ', device.userId)
+          console.log('PushToken = ', device.pushToken)
           OneSignal.getTags((receivedTags) => {
-            console.log(receivedTags)
+            console.log(receivedTags).username
           })
-          */
       },
+      */
       onNotificationOpened: function(message, data, isActive) {
-        console.log('MESSAGE: ', message);
-        console.log('DATA: ', data);
-        console.log('ISACTIVE: ', isActive);
-        // Do whatever you want with the objects here
-        // _navigator.to('main.post', data.title, { // If applicable
-        //  article: {
-        //    title: data.title,
-        //    link: data.url,
-        //    action: data.actionSelected
-        //  }
-        // });
+        //console.log('MESSAGE: ', message)
+        //console.log('DATA: ', data)
+        //console.log('CURRENT PUID:' + appStore.current_puid)
+        //console.log('ISACTIVE: ', isActive)
+        if (!isActive) {
+          if (data.postProps && appStore.current_puid != data.postProps.puid) {
+            Actions.login({ type: 'replace', postProps:data.postProps })
+          }
+        }
+        else {
+          if (data.postProps && appStore.current_puid != data.postProps.puid) {
+            appStore.new_messages = appStore.new_messages + 1
+          }
+        }
       }
     })
-    //OneSignal.enableInAppAlertNotification(true)
   }
   render() {
     console.disableYellowBox = true

@@ -106,8 +106,8 @@ export default class Profile extends Component {
       <TouchableOpacity onPress={() => this._openChat(data)}>
         <View style={styles.card}>
           <Text style={styles.title}>{ data.title }</Text>
-          <Text style={styles.info}>Price: {data.price}</Text>
-          <Text style={styles.info}>Posted: {timeString}</Text>
+          <Text style={styles.info}>{data.price}</Text>
+          <Text style={styles.info}>{timeString}</Text>
         </View>
       </TouchableOpacity>
     )
@@ -165,10 +165,17 @@ export default class Profile extends Component {
   _logOut = () => {
     firebaseApp.auth().signOut()
     .then(() => {
+      this.props.appStore.username = ""
+      this.props.appStore.user = {}
+      this.props.appStore.post_count = 0
       Actions.login({ type: 'replace' });
     }, function(error) {
       console.log(error)
     });
+  }
+
+  componentWillUnmount() {
+    firebaseApp.database().ref('userposts/'+ this.props.appStore.user.uid +'/posts').off()
   }
 }
 

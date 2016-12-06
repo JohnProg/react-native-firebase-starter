@@ -32,6 +32,12 @@ export default class ChatScreen extends Component {
   }
 
   componentWillMount() {
+    console.log(this.props.postProps)
+    if (this.props.postProps.new_messages) {
+      this.props.appStore.new_messages = 0
+    }
+    this.props.appStore.current_page = 'chat'
+    this.props.appStore.current_puid = this.props.postProps.puid
     this._loadMessages((message) => {
       this.setState((previousState) => {
         return {
@@ -42,11 +48,6 @@ export default class ChatScreen extends Component {
   }
 
   componentDidMount() {
-
-  }
-
-  componentWillUnmount() {
-    firebaseApp.database().ref('messages').child(this.props.postProps.puid).off()
   }
 
   _loadMessages(callback) {
@@ -62,9 +63,9 @@ export default class ChatScreen extends Component {
           name: message.user.name,
         },
       });
+      firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).update( { new_messages:0 } )
     };
     firebaseApp.database().ref('messages').child(this.props.postProps.puid).limitToLast(20).on('child_added', onReceive)
-    firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).update( { new_messages:0 } )
   }
 
   _onSend = (messages = []) => {
@@ -92,7 +93,7 @@ export default class ChatScreen extends Component {
                   return post;
                 }
               )
-              console.log("PUSHING NOTIFICATION !!! " + playerId);
+              console.log("PUSHING NOTIFICATION !!! " + this.props.title);
               fetch('https://onesignal.com/api/v1/notifications',
               {
                 method: 'POST',
@@ -107,7 +108,7 @@ export default class ChatScreen extends Component {
                   included_segments: ["All"],
                   android_sound: "fishing",
                   ios_sound: "fishing.caf",
-                  data: {"postId": this.props.postProps.puid},
+                  data: {"postProps": this.props.postProps},
                   headings: {"en": "New message from " + this.props.appStore.user.displayName},
                   contents: {"en": messages[i].text },
                   filters: [{"field":"tag","key":"uid","relation":"=","value":playerId}],
@@ -132,14 +133,20 @@ export default class ChatScreen extends Component {
           }
           else {
             console.log("This item already exists");
-          } 
-          this.props.postProps
+          }
         }
         else {
           firebaseApp.database().ref('messages_notif').child(this.props.postProps.puid).set({include_player_ids: [this.props.appStore.user.uid]})
         }
       })
     }
+  }
+
+  componentWillUnmount() {
+    console.log("---- CHAT UNMOUNT ---")
+    this.props.appStore.current_page = ''
+    this.props.appStore.current_puid = ''
+    firebaseApp.database().ref('messages').child(this.props.postProps.puid).off()
   }
 
   render() {

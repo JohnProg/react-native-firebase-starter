@@ -4,8 +4,10 @@ class AppStore {
   @observable username = ''
   @observable user = {}
   @observable post_count = 0
+  @observable new_messages = 0
+  @observable current_page = ''
+  @observable current_puid = ''
   //@observable posts = []
-  //@observable myposts = []
 }
 
 const appStore = new AppStore()

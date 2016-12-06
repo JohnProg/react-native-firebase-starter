@@ -53,9 +53,11 @@ export default class MyChats extends Component {
   }
 
   componentDidUpdate() {
+    console.log("--------- MY CHATS UPDATED--------- ")
   }
 
   render() {
+    console.log("MY CHAT RENDERING AGAIN!!!");
     return (
       <View style={styles.container}>
         <ListView
@@ -140,17 +142,8 @@ export default class MyChats extends Component {
     Actions.chat({ title:postData.title, postProps:postData })
   }
 
-  _userEdit = () => {
-    Actions.setting()
-  }
-
-  _logOut = () => {
-    firebaseApp.auth().signOut()
-    .then(() => {
-      Actions.login({ type: 'replace' });
-    }, function(error) {
-      console.log(error)
-    });
+  componentWillUnmount() {
+    firebaseApp.database().ref('userchats/'+ this.props.appStore.user.uid +'/posts').off()
   }
 }
 

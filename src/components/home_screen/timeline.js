@@ -104,9 +104,10 @@ export default class Timeline extends Component {
         <View style={styles.postInfo}>
           <Text style={styles.info}>Price: <Text style={styles.bold}>{data.price}</Text></Text>
           <Text style={styles.info}>- added by <Text style={styles.bold}>{data.username}</Text> - {timeString} -</Text>
+          { data.text ? <Text style={styles.info}>{ data.text }</Text> : null }
         </View>
         <View style={styles.postButtons}>
-          <TouchableOpacity style={styles.button} onPress={() => this._openChat(data)}>
+          <TouchableOpacity style={styles.button}>
             <Icon name='md-flag' size={30} color='#3367d6'/>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => this._openChat(data)}>
@@ -164,6 +165,10 @@ export default class Timeline extends Component {
         </View>
       )
     }
+  }
+
+  componentWillUnmount() {
+    firebaseApp.database().ref('posts').off()
   }
 }
 

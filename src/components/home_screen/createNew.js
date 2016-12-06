@@ -110,6 +110,7 @@ export default class CreateNew extends Component {
           <View style={styles.titleContainer}>
             <TextInput
             style={styles.inputField}
+            maxLength={34}
             value={this.state.postTitle}
             onChangeText={(text) => this.setState({ postTitle: text })}
             underlineColorAndroid='transparent'
@@ -123,6 +124,7 @@ export default class CreateNew extends Component {
           <View style={styles.titleContainer}>
             <TextInput
             ref='SecondInput'
+            maxLength={34}
             style={styles.inputField}
             value={this.state.postPrice}
             onChangeText={(text) => this.setState({ postPrice: text })}
@@ -207,7 +209,6 @@ export default class CreateNew extends Component {
               {
                 app_id: "a8f852be-2aa4-4c9d-a1b3-38d630926927",
                 included_segments: ["All"],
-                data: {"postId": newPostKey},
                 headings: {"en": "New fish posted"},
                 android_sound: "fishing",
                 ios_sound: "fishing.caf",
@@ -219,12 +220,13 @@ export default class CreateNew extends Component {
                 console.log("Push POST:" + JSON.stringify(responseData));
             })
             .done()
+            console.log(this.state.postText);
             const postData = {
               username: username,
               createdAt: firebase.database.ServerValue.TIMESTAMP,
               updatedAt: firebase.database.ServerValue.TIMESTAMP,
               new_messages: 0,
-              text: this.state.postText,
+              text: this.state.postText.replace(/(\r\n|\n|\r)/gm,""),
               title: this.state.postTitle,
               price: this.state.postPrice,
               puid: newPostKey,
