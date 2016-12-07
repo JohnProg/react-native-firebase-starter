@@ -30,8 +30,13 @@ class App extends Component {
         //console.log('CURRENT PUID:' + appStore.current_puid)
         //console.log('ISACTIVE: ', isActive)
         if (!isActive) {
-          if (data.postProps && appStore.current_puid != data.postProps.puid) {
-            Actions.login({ type: 'replace', postProps:data.postProps })
+          if (data.postProps) {
+            if (appStore.current_puid != data.postProps.puid) {
+              Actions.login({ type: 'replace', postProps:data.postProps })
+            }
+          }
+          else {
+            Actions.login({ type: 'replace', postProps:null })
           }
         }
         else {

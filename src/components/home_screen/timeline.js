@@ -77,7 +77,7 @@ export default class Timeline extends Component {
   }
 
   _renderRow = (data) => {
-    console.log("TIMELINE :::: _renderRow " + data.title)
+    //console.log("TIMELINE :::: _renderRow " + data.title)
     const timeString = moment(data.createdAt).fromNow()
     const height = screenWidth*data.imageHeight/data.imageWidth
     const shareOptions = {
@@ -90,7 +90,7 @@ export default class Timeline extends Component {
     return (
       <View style={styles.card}>
         <Text style={styles.title}>{ data.title }</Text>
-        <View style={styles.postImage}>
+        <TouchableOpacity style={styles.postImage} onPress={() => this._openChat(data)}>
           <Image
             source={{ uri:data.image }}
             resizeMode='contain'
@@ -100,15 +100,15 @@ export default class Timeline extends Component {
               alignSelf: 'center',
             }}
           />
-        </View>
+        </TouchableOpacity>
         <View style={styles.postInfo}>
-          <Text style={styles.info}>Price: <Text style={styles.bold}>{data.price}</Text></Text>
-          <Text style={styles.info}>- added by <Text style={styles.bold}>{data.username}</Text> - {timeString} -</Text>
+          <Text style={styles.info}><Text style={styles.bold}>{data.price}</Text></Text>
+          <Text style={styles.info}><Text style={styles.bold}>{data.username}</Text> - {timeString}</Text>
           { data.text ? <Text style={styles.info}>{ data.text }</Text> : null }
         </View>
         <View style={styles.postButtons}>
-          <TouchableOpacity style={styles.button}>
-            <Icon name='md-flag' size={30} color='#3367d6'/>
+          <TouchableOpacity style={styles.button} onPress={() => this._BuyNow(data)}>
+            <Icon name='md-cart' size={30} color='#3367d6'/>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => this._openChat(data)}>
             <Icon name='md-chatbubbles' size={30} color='#3367d6'/>
@@ -125,8 +125,12 @@ export default class Timeline extends Component {
     Actions.chat({ title:postData.title, postProps:postData })
   }
 
+  _BuyNow = (postData) => {
+    Actions.chat({ title:postData.title, postProps:postData, wantToBuy:true })
+  }
+
   _onEndReached = () => {
-    console.log("TIMELINE ----> _onEndReached :+++:");
+    //console.log("TIMELINE ----> _onEndReached :+++:");
     if (!this.state.isEmpty && !this.state.isFinished && !this.state.isLoading) {
       this.setState({ counter: this.state.counter + 1 })
       this.setState({ isLoading: true })

@@ -26,34 +26,38 @@ export default class MyChats extends Component {
     this.state = {
       isLoading: true,
       isFinished: false,
-      counter: 10,
+      counter: 30,
       isEmpty: false,
-      dataSource: new ListView.DataSource({rowHasChanged: (row1, row2) => row1 !== row2}),
+      dataSource: new ListView.DataSource({rowHasChanged: (row1, row2) => true}),
     }
-  }
-
-  componentDidMount() {
+    this.data = []
     const uid = this.props.appStore.user.uid
     console.log("--------- MY CHATS --------- " + uid)
-    firebaseApp.database().ref('userchats/'+ uid +'/posts').orderByChild('updatedAt').limitToLast(this.state.counter).on('value',
+    firebaseApp.database().ref('userchats/'+ uid +'/posts').orderByChild('updatedAt').limitToLast(this.state.counter).on('child_added',
     (snapshot) => {
-      console.log("USER CHATS RETRIEVED");
-      //this.props.appStore.myposts = snapshot.val()
-      if (snapshot.val()) {
-        this.setState({ isEmpty: false })
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(_.reverse(_.toArray(snapshot.val()))),
-        })
-      }
-      else {
-        this.setState({ isEmpty: true })
-      }
+      console.log("--------->>>> CHAT ADDED ");
+      this.data.unshift( {id: snapshot.key, postData: snapshot.val()} )
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(this.data)
+      })
       this.setState({ isLoading: false })
+    })
+    firebaseApp.database().ref('userchats/'+ uid +'/posts').orderByChild('updatedAt').limitToLast(this.state.counter).on('child_changed',
+    (snapshot) => {
+      console.log("--------->>>> CHAT CHANGED TWICE, very weird bug !!!");
+      this.data = this.data.filter((x) => x.id !== snapshot.key)
+      this.data.unshift({id: snapshot.key, postData: snapshot.val()})
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(this.data)
+      })
     })
   }
 
+  componentDidMount() {
+
+  }
+
   componentDidUpdate() {
-    console.log("--------- MY CHATS UPDATED--------- ")
   }
 
   render() {
@@ -66,7 +70,7 @@ export default class MyChats extends Component {
           dataSource={this.state.dataSource}
           renderRow={this._renderRow}
           renderFooter={this._renderFooter}
-          onEndReached={this._onEndReached}
+          //onEndReached={this._onEndReached}
           onEndReachedThreshold={1}
         />
       </View>
@@ -74,19 +78,19 @@ export default class MyChats extends Component {
   }
 
   _renderRow = (data) => {
-    const timeString = moment(data.updatedAt).fromNow()
-    const newMessageCounter = data.new_messages ?
-      <View style={styles.CounterContainer}><Text style={styles.counter}>{ data.new_messages }</Text></View>
+    const timeString = moment(data.postData.updatedAt).fromNow()
+    const newMessageCounter = data.postData.new_messages ?
+      <View style={styles.CounterContainer}><Text style={styles.counter}>{ data.postData.new_messages }</Text></View>
     : null
     return (
-      <TouchableOpacity onPress={() => this._openChat(data)}>
+      <TouchableOpacity onPress={() => this._openChat(data.postData)}>
         <View style={styles.card}>
           <View style={styles.RawContainer}>
-            <View style={styles.LeftContainer}><Text style={styles.title}>{ data.title }</Text></View>
-            <View style={styles.RightContainer}><Text style={styles.author}>{ data.username }</Text></View>
+            <View style={styles.LeftContainer}><Text style={styles.title}>{ data.postData.title }</Text></View>
+            <View style={styles.RightContainer}><Text style={styles.author}>{ data.postData.username }</Text></View>
           </View>
           <View style={styles.RawContainer}>
-            <View style={styles.LeftContainer}><Text style={styles.info}>{ data.price }</Text></View>
+            <View style={styles.LeftContainer}><Text style={styles.info}>{ data.postData.price }</Text></View>
             { newMessageCounter }
           </View>
           <View style={styles.RawContainer}>

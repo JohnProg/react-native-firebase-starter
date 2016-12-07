@@ -37,7 +37,6 @@ export default class LoginScreen extends Component {
     }
     _unsubscribe = firebaseApp.auth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(" --- User Signed In ---> " + user.displayName)
         this.props.appStore.user = user
         this.props.appStore.username = user.displayName
         firebaseApp.database().ref('users').child(user.uid).once('value')
@@ -47,7 +46,6 @@ export default class LoginScreen extends Component {
         Actions.home({ type:'replace', postProps:this.props.postProps })
       }
       else {
-        console.log(" --- User is Signed Off --- ")
         this.setState({ initialScreen: true })
       }
       _unsubscribe()
@@ -95,23 +93,25 @@ export default class LoginScreen extends Component {
 
     return (
       <View style={styles.container}>
-      <Background imgSrouce={require('../assets/images/ocean.jpeg')}/>
-      <KeyboardAwareScrollView contentContainerStyle={styles.scrollContainer} >
-        <StatusBar
-          backgroundColor={getColor('googleBlue700')}
-          barStyle='light-content'
-          animated={true}
-        />
-        <View>
-          <TouchableOpacity onPress={this._onLogoClicked}>
-            <Image source={require('../assets/images/fishii.png')} style={styles.logoImage}/>
-          </TouchableOpacity>
+        <View style={styles.rowcontainer}>
+          <Background imgSrouce={require('../assets/images/ocean.jpeg')}/>
+          <KeyboardAwareScrollView>
+            <StatusBar
+              backgroundColor={getColor('googleBlue700')}
+              barStyle='light-content'
+              animated={true}
+            />
+            <View style={styles.logoContainer}>
+              <TouchableOpacity onPress={this._onLogoClicked}>
+                <Image source={require('../assets/images/fishii.png')} style={styles.logoImage}/>
+              </TouchableOpacity>
+            </View>
+            { initialView }
+            { signIn }
+            { signUp }
+            { fogotPass }
+          </KeyboardAwareScrollView>
         </View>
-        { initialView }
-        { signIn }
-        { signUp }
-        { fogotPass }
-      </KeyboardAwareScrollView>
       </View>
     )
   }
@@ -175,8 +175,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  scrollContainer: {
+  rowcontainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',

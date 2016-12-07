@@ -79,25 +79,38 @@ export default class CreateNew extends Component {
   }
 
   render() {
-    const height = (screenWidth*this.state.imageHeight/this.state.imageWidth)
+    const height = ((screenWidth-40)*this.state.imageHeight/this.state.imageWidth)
     const photo = this.state.imagePath ?
-      <Image
-        source={{ uri:this.state.imagePath }}
-        resizeMode='contain'
-        style={{
-          height: height,
-          width: screenWidth,
-          alignSelf: 'center',
-          marginBottom: 10,
-        }}
-      />
+      <View style={{ flex:1, }}>
+        <Image
+          source={{ uri:this.state.imagePath }}
+          resizeMode='contain'
+          style={{
+            height: height,
+            width: screenWidth-40,
+            alignSelf: 'center',
+            marginBottom: 10,
+          }}
+        />
+      </View>
      :
-      null
+       <View style={{ flex:1, marginBottom: 10,}}>
+         <Image
+           source={require('./../../assets/images/fishii.png')}
+           style={{
+             height: 100,
+             width: 100,
+             backgroundColor:'#4285f4',
+             alignSelf: 'center',
+             borderRadius: 5,
+           }}
+         />
+       </View>
     return (
       <View style={styles.container}>
         <Spinner visible={this.state.spinnervisible} />
         <KeyboardAwareScrollView ref='scrollContent'>
-          <Text style={styles.title}>{'ADD A NEW FISH'}</Text>
+          <Text style={styles.title}>{'NEW FISH / NUEVO PESCADO'}</Text>
           { photo }
           <TouchableOpacity style={styles.btnAdd} onPress={this._takePicture}>
             <Icon
@@ -114,7 +127,7 @@ export default class CreateNew extends Component {
             value={this.state.postTitle}
             onChangeText={(text) => this.setState({ postTitle: text })}
             underlineColorAndroid='transparent'
-            placeholder='Enter the type of the fish'
+            placeholder='Type of fish / Tipo de pescado'
             placeholderTextColor='rgba(0,0,0,.6)'
             onSubmitEditing={(event) => {
               this.refs.SecondInput.focus();
@@ -129,7 +142,7 @@ export default class CreateNew extends Component {
             value={this.state.postPrice}
             onChangeText={(text) => this.setState({ postPrice: text })}
             underlineColorAndroid='transparent'
-            placeholder='Enter the price of the fish with currency'
+            placeholder='Price of the fish / Precio del pescado'
             placeholderTextColor='rgba(0,0,0,.6)'
             onSubmitEditing={(event) => {
               this.refs.ThirdInput.focus();
@@ -149,7 +162,7 @@ export default class CreateNew extends Component {
             multiline={true}
             style={styles.inputField}
             underlineColorAndroid='transparent'
-            placeholder='Please give a short description where/when/how you catch this fish. Does this price include the delivery or when/where/how to get this fish.'
+            placeholder='Please give a short description where/when/how you catch this fish. Does this price include the delivery or when/where/how to get this fish.       Por favor dé una breve descripción de dónde / cuándo / cómo captura este pez. ¿Este precio incluye la entrega o cuándo / dónde / cómo conseguir este pescado.'
             value={this.state.postText}
             onChangeText={(text) => this.setState({ postText: text })}
             placeholderTextColor='rgba(0,0,0,.6)'
@@ -223,6 +236,7 @@ export default class CreateNew extends Component {
             console.log(this.state.postText);
             const postData = {
               username: username,
+              uid: uid,
               createdAt: firebase.database.ServerValue.TIMESTAMP,
               updatedAt: firebase.database.ServerValue.TIMESTAMP,
               new_messages: 0,
@@ -243,7 +257,6 @@ export default class CreateNew extends Component {
             updates['/messages_notif/' + newPostKey + '/include_player_ids'] = [this.props.appStore.user.uid]
             firebaseApp.database().ref().update(updates)
             .then(() => {
-              this.refs.scrollContent.scrollToPosition(0, 0, true)
               this.setState({
                               postStatus: 'Posted! Thank You.',
                               postTitle: '',
@@ -257,6 +270,9 @@ export default class CreateNew extends Component {
               setTimeout(() => {
                 this.setState({ postStatus: null })
               }, 3000)
+              setTimeout(() => {
+                this.refs.scrollContent.scrollToPosition(0, 0, true)
+              }, 1000)
             })
             .catch(() => {
               this.setState({ postStatus: 'Something went wrong!!!' })
@@ -283,8 +299,9 @@ export default class CreateNew extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    width: screenWidth,
     padding: 10,
-    flexDirection: 'column',
+    //flexDirection: 'column',
   },
   title: {
     marginTop: 10,

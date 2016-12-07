@@ -72,9 +72,7 @@ export default class Profile extends Component {
             <Text style={styles.profileCounts}>
               {this.props.appStore.post_count}
             </Text>
-            <Text style={styles.countsName}>
-              POSTS
-            </Text>
+            <Text style={styles.countsName}>FISH</Text>
           </View>
           <View style={styles.profileCountsContainer}>
             <TouchableOpacity onPress={this._userEdit}>
@@ -126,7 +124,6 @@ export default class Profile extends Component {
           console.log("---- USER POST FINISHED !!!! ----")
         }
         if (snapshot.val()) {
-          console.log(this.state.counter);
           this.setState({ isEmpty: false })
           this.setState({
             dataSource: this.state.dataSource.cloneWithRows(_.reverse(_.toArray(snapshot.val()))),

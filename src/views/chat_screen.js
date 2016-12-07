@@ -17,7 +17,8 @@ import Icon from 'react-native-vector-icons/Ionicons'
 import EvilIcon from 'react-native-vector-icons/EvilIcons'
 import { observer,inject } from 'mobx-react/native'
 import { Actions } from 'react-native-mobx'
-import { GiftedChat } from 'react-native-gifted-chat'
+import { GiftedChat, Bubble } from 'react-native-gifted-chat'
+import Lightbox from 'react-native-lightbox'
 
 
 const screenWidth = Dimensions.get('window').width
@@ -32,7 +33,70 @@ export default class ChatScreen extends Component {
   }
 
   componentWillMount() {
-    console.log(this.props.postProps)
+    console.log("---- CHAT WILL MOUNT ----- " + this.props.appStore.new_messages);
+    if (this.props.postProps.image) {
+      this.setState((previousState) => {
+        return {
+          messages: GiftedChat.append(previousState.messages, {
+            _id: 1,
+            text: this.props.postProps.title,
+            createdAt: new Date(this.props.postProps.createdAt),
+            user: {
+              _id: this.props.postProps.uid,
+              name: this.props.postProps.username,
+            },
+            image: this.props.postProps.image,
+          }),
+        }
+      })
+    }
+    if (this.props.postProps.price) {
+      this.setState((previousState) => {
+        return {
+          messages: GiftedChat.append(previousState.messages, {
+            _id: 2,
+            text: this.props.postProps.price,
+            createdAt: new Date(this.props.postProps.createdAt),
+            user: {
+              _id: this.props.postProps.uid,
+              name: this.props.postProps.username,
+            },
+          }),
+        }
+      })
+    }
+    if (this.props.postProps.text) {
+      this.setState((previousState) => {
+        return {
+          messages: GiftedChat.append(previousState.messages, {
+            _id: 3,
+            text: this.props.postProps.text,
+            createdAt: new Date(this.props.postProps.createdAt),
+            user: {
+              _id: this.props.postProps.uid,
+              name: this.props.postProps.username,
+            },
+          }),
+        }
+      })
+    }
+    if (this.props.wantToBuy) {
+      this.setState((previousState) => {
+        return {
+          messages: GiftedChat.append(previousState.messages, {
+            _id: 4,
+            text: "Please use this chat to confirm your order with the fisherman.",
+            createdAt: new Date(this.props.postProps.createdAt),
+            user: {
+              _id: 0,
+              name: "Fishii",
+              avatar: '../../../assets/images/jsapp.png',
+            },
+          }),
+        }
+      })
+    }
+    console.log(this.props.postProps);
     if (this.props.postProps.new_messages) {
       this.props.appStore.new_messages = 0
     }
@@ -51,7 +115,7 @@ export default class ChatScreen extends Component {
   }
 
   _loadMessages(callback) {
-    console.log("----------xXx---------- " + this.props.postProps.puid);
+    console.log("---------- LOAD MESSAGES ---------- " + this.props.postProps.puid);
     const onReceive = (data) => {
       const message = data.val()
       callback({
@@ -63,7 +127,9 @@ export default class ChatScreen extends Component {
           name: message.user.name,
         },
       });
-      firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).update( { new_messages:0 } )
+      if (this.props.postProps.new_messages) {
+        firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).update( { new_messages:0 } )
+      }
     };
     firebaseApp.database().ref('messages').child(this.props.postProps.puid).limitToLast(20).on('child_added', onReceive)
   }
@@ -82,7 +148,8 @@ export default class ChatScreen extends Component {
         console.log(snapshot.val());
         if (snapshot.val()) {
           snapshot.val().include_player_ids.map((playerId) => {
-            console.log(playerId);
+            console.log("+-------> " + playerId)
+            firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).update({ updatedAt: firebase.database.ServerValue.TIMESTAMP })
             if (playerId != this.props.appStore.user.uid) {
               firebaseApp.database().ref('userchats/'+playerId+'/posts').child(this.props.postProps.puid).transaction(
                 (post) => {
@@ -131,9 +198,6 @@ export default class ChatScreen extends Component {
             firebaseApp.database().ref('messages_notif').child(this.props.postProps.puid).set({include_player_ids: playerIds})
             firebaseApp.database().ref('userchats/'+this.props.appStore.user.uid+'/posts').child(this.props.postProps.puid).set(this.props.postProps)
           }
-          else {
-            console.log("This item already exists");
-          }
         }
         else {
           firebaseApp.database().ref('messages_notif').child(this.props.postProps.puid).set({include_player_ids: [this.props.appStore.user.uid]})
@@ -149,16 +213,51 @@ export default class ChatScreen extends Component {
     firebaseApp.database().ref('messages').child(this.props.postProps.puid).off()
   }
 
-  render() {
+  renderLightboxContent = (props) => {
     return (
-            <GiftedChat
-              messages={this.state.messages}
-              onSend={this._onSend}
-              user={{
-                _id: this.props.appStore.user.uid,
-                name: this.props.appStore.username,
+            <Image
+              source={{ uri:this.props.postProps.image }}
+              resizeMode='contain'
+              style={{
+                marginTop:60,
+                width: screenWidth,
+                height: this.props.postProps.imageHeight,
               }}
             />
+          )
+  }
+
+  renderMessageImage = (props) => {
+    return (
+             <View>
+              <Lightbox renderContent={this.renderLightboxContent}>
+                <Image
+                  source={{ uri:props.currentMessage.image }}
+                  style={{
+                          width: 250,
+                          height: 150,
+                          borderRadius: 13,
+                          margin: 3,
+                          resizeMode: 'cover',
+                        }}
+                />
+              </Lightbox>
+            </View>
+          )
+  }
+
+  render() {
+    return (<View style={{marginTop:56,flex:1,}}>
+              <GiftedChat
+                messages={this.state.messages}
+                onSend={this._onSend}
+                user={{
+                  _id: this.props.appStore.user.uid,
+                  name: this.props.appStore.username,
+                }}
+                renderMessageImage={this.renderMessageImage}
+              />
+            </View>
           )
   }
 }
