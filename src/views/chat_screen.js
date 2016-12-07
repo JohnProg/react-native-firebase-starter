@@ -90,7 +90,7 @@ export default class ChatScreen extends Component {
             user: {
               _id: 0,
               name: "Fishii",
-              avatar: '../../../assets/images/jsapp.png',
+              avatar: 'https://github.com/jsappme/react-native-firebase-starter/raw/wip/src/assets/images/jsapp.png',
             },
           }),
         }
